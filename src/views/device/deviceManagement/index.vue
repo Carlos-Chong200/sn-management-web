@@ -1,11 +1,11 @@
 <template>
   <div class="userManagement-container">
     <vab-query-form>
-      <vab-query-form-left-panel :span="12">
-        <el-button icon="el-icon-plus" type="primary">添加</el-button>
-        <el-button icon="el-icon-delete" type="danger">批量删除</el-button>
+      <vab-query-form-left-panel :span="8">
+        <el-button icon="el-icon-folder-add" @click="handleBatchSave()" type="primary">批量录入设备</el-button>
+        <el-button icon="el-icon-delete" type="danger" @click="handleDelete">批量删除</el-button>
       </vab-query-form-left-panel>
-      <vab-query-form-right-panel :span="12">
+      <vab-query-form-right-panel :span="16">
         <el-form :inline="true" :model="queryForm" @submit.native.prevent>
           <el-form-item label="设备SN码:">
             <el-input v-model.trim="queryForm.sn" clearable placeholder="请输入设备sn码" />
@@ -25,9 +25,9 @@
     <el-table v-loading="listLoading" :data="list" :element-loading-text="elementLoadingText"
       @selection-change="setSelectRows">
       <el-table-column show-overflow-tooltip type="selection" />
-      <el-table-column fit label="设备sn码" prop="sn" show-overflow-tooltip width="300" />
+      <el-table-column fit label="设备sn码" fixed prop="sn" show-overflow-tooltip width="300" />
+      <el-table-column label="CPU信息" prop="cpuId" show-overflow-tooltip width="200" />
       <el-table-column label="序列号" prop="sequenceInfo" show-overflow-tooltip />
-      <el-table-column label="CPU信息" prop="cpuId" show-overflow-tooltip />
       <el-table-column label="设备名" prop="deviceName" show-overflow-tooltip />
       <el-table-column label="设备类型" prop="deviceType" show-overflow-tooltip />
       <el-table-column label="设备参数信息" prop="deviceInfo" show-overflow-tooltip width="150" />
@@ -42,83 +42,29 @@
       </el-table-column>
       <el-table-column fixed="right" label="操作" show-overflow-tooltip width="200">
         <template #default="{ row }">
-          <!-- <el-upload class="upload-demo" action="https://jsonplaceholder.typicode.com/posts/" :on-change="handleChange"
-            :file-list="fileList">
-            <el-button size="small" type="primary">上传标定文件</el-button>
-          </el-upload> -->
           <el-button size="small" type="success" @click="handleCalibUpload(row)">上传标定文件</el-button>
           <el-button type="text" @click="handleEdit(row)">编辑</el-button>
-          <el-button type="text">删除</el-button>
+          <el-button type="text" @click="handleDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
     <el-pagination background :current-page="queryForm.pageNo" :layout="layout" :page-size="queryForm.pageSize"
       :total="total" @current-change="handleCurrentChange" @size-change="handleSizeChange" />
-
-    <el-dialog title="标定文件上传" :visible.sync="showFileUpload" center width="30%">
-      <el-form :model="uploadForm">
-        <el-form-item label="设备SN" label-width="150px">
-          <el-input v-model="uploadForm.sn" autocomplete="off" disabled></el-input>
-        </el-form-item>
-        <!-- <el-form-item label="活动区域" label-width="150px">
-          <el-select v-model="uploadForm.region" placeholder="请选择活动区域">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
-          </el-select>
-        </el-form-item> -->
-        <el-form-item label="相机内参标" label-width="150px">
-          <div class="upload-input-group">
-            <el-upload class="upload-demo" multiple=false action="https://jsonplaceholder.typicode.com/posts/"
-              :on-change="handleChange">
-              <el-button size="small" type="primary">点击上传</el-button>
-            </el-upload>
-            上次更新时间：<el-input v-model="calibratuonRecord.lastCameraIntrinsic" autocomplete="off" disabled></el-input>
-          </div>
-        </el-form-item></el-form-item>
-        <el-form-item label="相机到电机轴外参" label-width="150px">
-          <div class="upload-input-group">
-            <el-upload class="upload-demo" multiple=false action="https://jsonplaceholder.typicode.com/posts/"
-              :on-change="handleChange">
-              <el-button size="small" type="primary">点击上传</el-button>
-            </el-upload>
-            上次更新时间：<el-input v-model="calibratuonRecord.lastCameraIntrinsic" autocomplete="off" disabled></el-input>
-          </div>
-        </el-form-item>
-
-        <el-form-item label="相机到雷达外参" label-width="150px">
-          <div class="upload-input-group">
-            <el-upload class="upload-demo" multiple=false action="https://jsonplaceholder.typicode.com/posts/"
-              :on-change="handleChange">
-              <el-button size="small" type="primary">点击上传</el-button>
-            </el-upload>
-            上次更新时间：<el-input v-model="calibratuonRecord.lastCameraIntrinsic" autocomplete="off" disabled></el-input>
-          </div>
-        </el-form-item>
-        <el-form-item label="雷达到电机轴外参" label-width="150px">
-          <div class="upload-input-group">
-            <el-upload class="upload-demo" multiple=false action="https://jsonplaceholder.typicode.com/posts/"
-              :on-change="handleChange">
-              <el-button size="small" type="primary">点击上传</el-button>
-            </el-upload>
-            上次更新时间：<el-input v-model="calibratuonRecord.lastCameraIntrinsic" autocomplete="off" disabled></el-input>
-          </div>
-        </el-form-item>
-
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="showFileUpload = false">取 消</el-button>
-        <el-button type="primary" @click="showFileUpload = false">确 定</el-button>
-      </div>
-    </el-dialog>
+    <batchsave ref="batchsave" />
+    <cabliationUpload ref="cabliationUpload" />
+    <edit ref="edit"></edit>
   </div>
 </template>
 
 <script>
-import { getList } from '@/api/deviceManagement'
-import Add from './components/DeviceManagementAdd.vue'
+import { getList, doDelete } from '@/api/deviceManagement'
+import batchsave from './components/DeviceManagementBatchSave.vue'
+import cabliationUpload from './components/DeviceManagementUpload.vue'
+import edit from './components/DeviceManagementEdit.vue'
 
 export default {
   name: 'DeviceManagement',
+  components: { batchsave, cabliationUpload, edit },
   data() {
     return {
       listLoading: false,
@@ -146,25 +92,52 @@ export default {
   },
   beforeDestroy() { },
   methods: {
+    handleBatchSave() {
+      this.$refs['batchsave'].showBatchSave();
+      //这里的逻辑首先打开某个面板，同时生成一些sn码，让用户填写设备信息
+    },
+    handleDelete(row) {
+      if (row.id) {
+        this.$baseConfirm('你确定要删除当前项吗', null, async () => {
+          console.log("row.id", row.id)
+          const { msg } = await doDelete({ ids: [row.id] })
+          this.$baseMessage(msg, 'success')
+          this.fetchData()
+        })
+      } else {
+        if (this.selectRows.length > 0) {
+          const ids = this.selectRows.map((item) => item.id)
+          this.$baseConfirm('你确定要删除选中项吗', null, async () => {
+            const { msg } = await doDelete({ ids })
+            this.$baseMessage(msg, 'success')
+            this.fetchData()
+          })
+        } else {
+          this.$baseMessage('未选中任何行', 'error')
+          return false
+        }
+      }
+    },
     handleCalibUpload(row) {
-      this.uploadForm.sn = row.sn;
-      this.showFileUpload = true;
-      console.log("row", row)
+      this.$refs['cabliationUpload'].showFileUpload = true;
+      this.$refs['cabliationUpload'].uploadForm.deviceSn = row.sn;
+      this.$refs['cabliationUpload'].handleLastRecord(row.sn);
     },
     handleEdit(row) {
-      this.showFileUpload = true;
-      console.log('row', row)
+      this.$refs['edit'].showEdit = true;
+      this.$refs['edit'].form = row;
+
     },
     getStatusText(status) {
       switch (status) {
         case 1:
           return '正常'
         case 2:
-          return '维修'
+          return '维修中'
         case 3:
-          return '报废'
+          return '已拒保'
         case 4:
-          return '拒保'
+          return '已报废'
         default:
           return '未知状态'
       }

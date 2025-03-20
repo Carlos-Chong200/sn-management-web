@@ -16,17 +16,23 @@ export function doEdit(data) {
   })
 }
 
-export function doDelete(data) {
-  console.log('data', data)
+export function doUpdate(data) {
   return request({
-    url: '/deviceManagement/doDelete',
+    url: '/deviceManagement/doUpdate',
     method: 'post',
     data,
   })
 }
 
+export function doDelete(data) {
+  return request({
+    url: '/deviceManagement/doDelete',
+    method: 'post',
+    data
+  })
+}
+
 export function doGenerate(data) {
-  console.log('data', data)
   return request({
     url: '/deviceManagement/generate',
     method: 'post',
