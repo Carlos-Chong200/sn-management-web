@@ -4,12 +4,6 @@
       <el-form-item label="设备SN" label-width="150px">
         <el-input v-model="uploadForm.deviceSn" autocomplete="off" disabled></el-input>
       </el-form-item>
-      <!-- <el-form-item label="活动区域" label-width="150px">
-          <el-select v-model="uploadForm.region" placeholder="请选择活动区域">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
-          </el-select>
-        </el-form-item> -->
       <el-form-item label="相机内参标" label-width="150px">
         <div class="upload-input-group">
           <el-upload class="upload-demo" :multiple=false :action="uploadUrl" :show-file-list="false"
@@ -47,6 +41,15 @@
           上次更新时间：<el-input v-model="uploadForm.lastRadarToMotor" autocomplete="off" disabled></el-input>
         </div>
       </el-form-item>
+      <el-form-item label="标定原始文件(压缩包)" label-width="150px">
+        <div class="upload-input-group">
+          <el-upload class="upload-demo" :multiple=false :action="uploadUrl" :show-file-list="false"
+            :on-success="(response) => handleUploadSuccess(response, 'originalFile')">
+            <el-button size="small" type="primary">点击上传</el-button>
+          </el-upload>
+          上次更新时间：<el-input v-model="uploadForm.lastOriginalFile" autocomplete="off" disabled></el-input>
+        </div>
+      </el-form-item>
 
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -63,7 +66,7 @@ export default {
   name: 'DeviceManagementUpload',
   data() {
     return {
-      uploadUrl: "http://localhost:8809/api/deviceManagement/upload/",
+      uploadUrl: process.env.VUE_APP_BASE_UPLOAD_URL,
       showFileUpload: false,
       uploadForm: {
       },
@@ -102,8 +105,11 @@ export default {
           this.$set(this.uploadForm, 'radarToMotor', response.data.filepath);
           this.$set(this.uploadForm, 'lastRadarToMotor', response.data.uploadTime);
           break;
+        case "originalFile":
+          this.$set(this.uploadForm, 'originalFile', response.data.filepath);
+          this.$set(this.uploadForm, 'lastOriginalFile', response.data.uploadTime);
       }
-      console.log('上传成功 type', type, this.uploadForm);
+      this.$baseMessage("文件上传成功", 'success')
     },
     async handleSubmutRecord() {
       await addRecord(this.uploadForm);

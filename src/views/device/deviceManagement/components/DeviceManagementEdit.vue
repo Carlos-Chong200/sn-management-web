@@ -31,25 +31,20 @@
             :disabled="item.disabled">
           </el-option>
         </el-select>
-
       </el-form-item>
       <el-form-item label="出厂日期">
         <el-col :span="11">
-          <el-date-picker type="date" placeholder="选择日期" v-model="form.manufacturingDate"
-            style="width: 100%;"></el-date-picker>
+          <el-date-picker type="date" placeholder="选择日期" v-model="dateForPicker" style="width: 100%;"></el-date-picker>
         </el-col>
-        <el-col class="line" :span="2">-</el-col>
       </el-form-item>
       <el-form-item label="销售时间">
         <el-col :span="11">
-          <el-date-picker type="date" placeholder="选择日期" v-model="form.purchaseDate"
-            style="width: 100%;"></el-date-picker>
+          <el-date-picker type="date" placeholder="选择日期" v-model="dateForPicker1" style="width: 100%;"></el-date-picker>
         </el-col>
-        <el-col class="line" :span="2">-</el-col>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onSubmit">保存</el-button>
-        <el-button>取消</el-button>
+        <el-button @click="showEdit = false">取消</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
@@ -81,6 +76,57 @@ export default {
       }],
     }
   },
+  computed: {
+    dateForPicker: {
+      get() {
+        return this.form.manufacturingDate;
+      },
+      set(newValue) {
+        if (newValue) {
+          const d = new Date(newValue);
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          const hours = String(d.getHours()).padStart(2, '0');
+          const minutes = String(d.getMinutes()).padStart(2, '0');
+          const seconds = String(d.getSeconds()).padStart(2, '0');
+          const offset = d.getTimezoneOffset();
+          const sign = offset < 0 ? '-' : '+';
+
+          // 拼接成 ISO 8601 格式
+          this.form.manufacturingDateString = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+
+          this.form.manufacturingDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000${sign}00:00`;
+        }
+        else {
+          this.form.manufacturingDate = null;
+        }
+      }
+    },
+    dateForPicker1: {
+      get() {
+        return this.form.purchaseDate;
+      },
+      set(newValue) {
+        if (newValue) {
+          const d = new Date(newValue);
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          const hours = String(d.getHours()).padStart(2, '0');
+          const minutes = String(d.getMinutes()).padStart(2, '0');
+          const seconds = String(d.getSeconds()).padStart(2, '0');
+          const offset = d.getTimezoneOffset();
+          const sign = offset < 0 ? '-' : '+';
+          this.form.purchaseDateString = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+          // 拼接成 ISO 8601 格式
+          this.form.purchaseDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000${sign}00:00`;
+        } else {
+          this.form.purchaseDate = null;
+        }
+      }
+    },
+  },
   created() {
 
   },
@@ -88,6 +134,7 @@ export default {
     async onSubmit() {
       await doUpdate(this.form)
       this.showEdit = false;
+      this.$baseMessage('设备信息编辑成功', 'success')
     }
   }
 }

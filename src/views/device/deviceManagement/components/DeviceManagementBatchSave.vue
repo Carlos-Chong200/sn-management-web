@@ -89,6 +89,7 @@ export default {
     async editAndSave(status) {
       try {
         await doEdit({ "handleStatus": status, "devices": this.generateDevices });
+        this.$baseMessage('批量处理成功', 'success')
       } catch (error) {
         console.error('保存设备数据失败:', error);
       } finally {

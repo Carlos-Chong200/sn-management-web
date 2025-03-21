@@ -1,17 +1,10 @@
-/**
- * @author https://github.com/zxwk1998/vue-admin-better （不想保留author可删除）
- * @description cli配置
- */
-
 const path = require('path')
 const {
   publicPath,
   assetsDir,
   outputDir,
-  lintOnSave,
   transpileDependencies,
   title,
-  abbreviation,
   devPort,
   providePlugin,
   donation,
@@ -24,23 +17,19 @@ const { version, author } = require('./package.json')
 const Webpack = require('webpack')
 const WebpackBar = require('webpackbar')
 const dayjs = require('dayjs')
-const date = dayjs().format('YYYY_M_D')
 const time = dayjs().format('YYYY-M-D HH:mm:ss')
-process.env.VUE_APP_TITLE = title || 'vue-admin-better'
-process.env.VUE_APP_AUTHOR = author || 'https://vuejs-core.cn'
+process.env.VUE_APP_TITLE = title || 'SN管理平台'
+process.env.VUE_APP_AUTHOR = author
 process.env.VUE_APP_UPDATE_TIME = time
 process.env.VUE_APP_VERSION = version
 
 const resolve = (dir) => path.join(__dirname, dir)
-const mockServer = () => {
-  // if (process.env.NODE_ENV === 'development') return require('./mock')
-  // else return ''
-}
 
 module.exports = {
   publicPath,
   assetsDir,
   outputDir,
+  productionSourceMap: true,
   lintOnSave: false,
 
   transpileDependencies,
@@ -53,7 +42,6 @@ module.exports = {
       warnings: true,
       errors: true,
     },
-    after: mockServer(),
   },
   configureWebpack() {
     return {
@@ -95,9 +83,6 @@ module.exports = {
       .options({ symbolId: 'colorful-icon-[name]' })
       .end()
 
-    /*  config.when(process.env.NODE_ENV === "development", (config) => {
-      config.devtool("source-map");
-    }); */
     config.when(process.env.NODE_ENV !== 'development', (config) => {
       config.performance.set('hints', false)
       config.devtool('none')
